@@ -1,0 +1,17 @@
+<div id="results">
+  <% @wikidata_query[:results][:bindings].each do |b| %>
+    <p>
+      <a href="<%= b[:item][:value] %>"><%= b[:itemLabel][:value] %></a>
+      <dl>
+      <% if b[:start] %>
+        <dt>Start date</dt>
+        <dd><%= b[:start][:value] %></dd>
+      <% end %>
+      <% if b[:end] %>
+        <dt>End date</dt>
+        <dd><%= b[:end][:value] %></dd>
+      <% end %>
+      </dl>
+    </p>
+  <% end %>
+</div>

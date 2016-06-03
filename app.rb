@@ -41,24 +41,27 @@ get '/' do
   end
 end
 
-# TODO: Don't hardcode Q839078 here.
-get '/query' do
-  content_type 'application/json; charset=utf-8'
+post '/' do
+  redirect to("/query/#{params[:q]}")
+end
+
+get '/query/:position' do |position|
   uri = URI.parse('https://query.wikidata.org/sparql')
-  sparql = '
+  sparql = %Q{
   SELECT ?item ?itemLabel ?start ?end
     WHERE
     {
       ?item wdt:P31 wd:Q5 .
       ?item p:P39 ?position_held_statement .
-      ?position_held_statement ps:P39 wd:Q839078 .
+      ?position_held_statement ps:P39 wd:#{position} .
       OPTIONAL { ?position_held_statement pq:P580 ?start . }
       OPTIONAL { ?position_held_statement pq:P582 ?end . }
       SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
     } ORDER BY ?start
-  '
+  }
   uri.query = URI.encode_www_form(query: sparql, format: 'json')
-  open(uri.to_s).read
+  @wikidata_query = JSON.parse(open(uri.to_s).read, symbolize_names: true)
+  erb :query
 end
 
 get '/auth/mediawiki/callback' do
